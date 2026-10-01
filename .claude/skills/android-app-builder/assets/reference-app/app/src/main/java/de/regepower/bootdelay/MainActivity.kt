@@ -60,16 +60,16 @@ class MainActivity : Activity() {
 
         val buttons = LinearLayout(this)
         overlayBtn = button(
-            "Overlay",
-            "Berechtigung \"Über anderen Apps einblenden\". Ohne sie darf Android keine Apps aus dem Hintergrund starten.",
+            getString(R.string.btn_overlay),
+            getString(R.string.help_overlay),
         ) {
             startActivity(
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
             )
         }
         batteryBtn = button(
-            "Akku",
-            "Akku-Optimierung für BootDelay ausschalten, damit der Start nach dem Boot nicht gebremst wird.",
+            getString(R.string.btn_battery),
+            getString(R.string.help_battery),
         ) {
             startActivity(
                 Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")),
@@ -79,8 +79,8 @@ class MainActivity : Activity() {
         buttons.addView(batteryBtn, weight())
         buttons.addView(
             button(
-                "Test",
-                "Speichert die Einstellungen und startet die ausgewählten Apps sofort, wie nach einem Neustart.",
+                getString(R.string.btn_test),
+                getString(R.string.help_test),
             ) {
                 save()
                 LaunchService.start(this)
@@ -91,18 +91,18 @@ class MainActivity : Activity() {
 
         val delays = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         initial = delayField(
-            "Start", prefs.initialDelaySec, delays,
-            "Wartezeit nach dem Boot, bevor die erste App startet",
+            getString(R.string.label_start), prefs.initialDelaySec, delays,
+            getString(R.string.help_start),
         )
         delays.addView(View(this), LinearLayout.LayoutParams(0, 1, 1f))
         gap = delayField(
-            "Abstand", prefs.gapSec, delays,
-            "Pause zwischen den App-Starts und vor dem Home-Bildschirm",
+            getString(R.string.label_gap), prefs.gapSec, delays,
+            getString(R.string.help_gap),
         )
         root.addView(delays)
 
         val search = EditText(this).apply {
-            hint = "Apps suchen…"
+            hint = getString(R.string.search_hint)
             setSingleLine()
             inputType = InputType.TYPE_CLASS_TEXT
             addTextChangedListener(object : TextWatcher {
@@ -120,7 +120,7 @@ class MainActivity : Activity() {
         root.addView(selectedHeader)
         val selectedList = appList(selectedAdapter)
         root.addView(selectedList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-        root.addView(header().apply { text = "Verfügbar" })
+        root.addView(header().apply { text = getString(R.string.header_available) })
         root.addView(
             appList(availableAdapter),
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.4f),
@@ -137,10 +137,10 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        showStatus(overlayBtn, "Overlay", Settings.canDrawOverlays(this))
+        showStatus(overlayBtn, getString(R.string.btn_overlay), Settings.canDrawOverlays(this))
         showStatus(
             batteryBtn,
-            "Akku",
+            getString(R.string.btn_battery),
             getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName),
         )
     }
@@ -219,7 +219,7 @@ class MainActivity : Activity() {
     private fun refreshLists() {
         val byPkg = all.associateBy { it.pkg }
         selectedAdapter.set(order.mapNotNull { byPkg[it] })
-        selectedHeader.text = "Ausgewählt (${selectedAdapter.itemCount}) – halten & ziehen zum Sortieren"
+        selectedHeader.text = getString(R.string.header_selected, selectedAdapter.itemCount)
         availableAdapter.set(
             all.filter { !it.selected }
                 .filter { query.isEmpty() || it.label.lowercase(Locale.getDefault()).contains(query) || it.pkg.contains(query) }
@@ -284,7 +284,7 @@ class MainActivity : Activity() {
             contentDescription = help
         }
         val labelView = TextView(this).apply { text = label; tooltipText = help }
-        val unit = TextView(this).apply { text = "Sek" }
+        val unit = TextView(this).apply { text = getString(R.string.unit_sec) }
         val m = (6 * dp).toInt()
         parent.addView(labelView, LinearLayout.LayoutParams(-2, -2).apply { marginStart = m })
         parent.addView(field)
