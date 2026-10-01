@@ -33,9 +33,11 @@ class MainActivity : Activity() {
     private lateinit var initial: EditText
     private lateinit var gap: EditText
     private lateinit var search: EditText
-    private lateinit var list: ListView
-    private val adapter = AppAdapter()
+    private lateinit var selectedHeader: TextView
+    private val selectedAdapter = AppAdapter()
+    private val availableAdapter = AppAdapter()
     private var all: List<AppItem> = emptyList()
+    private val order = mutableListOf<String>()
     private var query = ""
 
     private val dp get() = resources.displayMetrics.density
@@ -84,23 +86,17 @@ class MainActivity : Activity() {
                 override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) = Unit
                 override fun afterTextChanged(s: Editable?) {
                     query = s?.toString().orEmpty().trim().lowercase(Locale.getDefault())
-                    adapter.refresh()
+                    refreshLists()
                 }
             })
         }
         root.addView(search)
 
-        list = ListView(this).apply {
-            this.adapter = this@MainActivity.adapter
-            setOnItemClickListener { _, _, pos, _ ->
-                val item = this@MainActivity.adapter.getItem(pos)
-                item.selected = !item.selected
-                save()
-                this@MainActivity.adapter.refresh()
-                setSelection(0)
-            }
-        }
-        root.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        selectedHeader = header()
+        root.addView(selectedHeader)
+        root.addView(appList(selectedAdapter), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        root.addView(header().apply { text = "Verfügbar" })
+        root.addView(appList(availableAdapter), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.4f))
         setContentView(root)
 
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -121,16 +117,49 @@ class MainActivity : Activity() {
         super.onPause()
     }
 
+    private fun header() = TextView(this).apply {
+        textSize = 13f
+        setTypeface(typeface, android.graphics.Typeface.BOLD)
+        setPadding(0, (8 * dp).toInt(), 0, (4 * dp).toInt())
+    }
+
+    private fun appList(a: AppAdapter) = ListView(this).apply {
+        adapter = a
+        setOnItemClickListener { _, _, pos, _ -> toggle(a.getItem(pos)) }
+    }
+
+    /** Selected apps keep their start order (new ones are appended); the rest is filtered alphabetically. */
+    private fun toggle(item: AppItem) {
+        item.selected = !item.selected
+        order.remove(item.pkg)
+        if (item.selected) order.add(item.pkg)
+        save()
+        refreshLists()
+    }
+
+    private fun refreshLists() {
+        val byPkg = all.associateBy { it.pkg }
+        selectedAdapter.set(order.mapNotNull { byPkg[it] })
+        selectedHeader.text = "Ausgewählt (${selectedAdapter.count}) – Startreihenfolge"
+        availableAdapter.set(
+            all.filter { !it.selected }
+                .filter { query.isEmpty() || it.label.lowercase(Locale.getDefault()).contains(query) || it.pkg.contains(query) }
+                .sortedBy { it.label.lowercase(Locale.getDefault()) },
+        )
+    }
+
     private fun save() {
         prefs.initialDelaySec = initial.text.toString().toIntOrNull() ?: 30
         prefs.gapSec = gap.text.toString().toIntOrNull() ?: 10
         if (all.isNotEmpty()) {
-            prefs.packages = all.filter { it.selected }.map { it.pkg }
+            prefs.packages = order.toList()
         }
     }
 
     private fun loadApps() {
         val selected = prefs.packages.toSet()
+        order.clear()
+        order.addAll(prefs.packages)
         Thread {
             val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
             val items = packageManager.queryIntentActivities(launcher, 0)
@@ -146,7 +175,8 @@ class MainActivity : Activity() {
                 }
             runOnUiThread {
                 all = items
-                adapter.refresh()
+                order.retainAll(items.map { it.pkg }.toSet())
+                refreshLists()
             }
         }.start()
     }
@@ -173,11 +203,8 @@ class MainActivity : Activity() {
     private inner class AppAdapter : BaseAdapter() {
         private var shown: List<AppItem> = emptyList()
 
-        /** Selected apps first, then alphabetical; filtered by the search query. */
-        fun refresh() {
-            shown = all
-                .filter { query.isEmpty() || it.label.lowercase(Locale.getDefault()).contains(query) || it.pkg.contains(query) }
-                .sortedWith(compareByDescending<AppItem> { it.selected }.thenBy { it.label.lowercase(Locale.getDefault()) })
+        fun set(items: List<AppItem>) {
+            shown = items
             notifyDataSetChanged()
         }
 

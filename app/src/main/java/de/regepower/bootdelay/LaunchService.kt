@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.os.Handler
@@ -35,7 +36,7 @@ class LaunchService : Service() {
         running = true
         startForeground(
             NOTIF_ID,
-            buildNotification(),
+            buildNotification(getString(R.string.notif_title)),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
         )
         val prefs = Prefs(this)
@@ -56,11 +57,20 @@ class LaunchService : Service() {
 
     private fun launchNext(pkgs: List<String>, index: Int, gapMs: Long) {
         if (index >= pkgs.size) {
-            // Keep the overlay a moment so the last launch is not racing its removal.
+            goHome()
             handler.postDelayed({ finish() }, TAIL_MS)
             return
         }
         val pkg = pkgs[index]
+        val label = try {
+            packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            pkg
+        }
+        getSystemService(NotificationManager::class.java).notify(
+            NOTIF_ID,
+            buildNotification(getString(R.string.notif_starting, label, index + 1, pkgs.size)),
+        )
         val launch = packageManager.getLaunchIntentForPackage(pkg)
         if (launch == null) {
             Log.w(TAG, "no launch intent for $pkg")
@@ -73,6 +83,19 @@ class LaunchService : Service() {
             }
         }
         handler.postDelayed({ launchNext(pkgs, index + 1, gapMs) }, gapMs)
+    }
+
+    /** After the last app (and a final gap, see [launchNext]) show the home screen. */
+    private fun goHome() {
+        try {
+            startActivity(
+                Intent(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_HOME)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        } catch (e: RuntimeException) {
+            Log.e(TAG, "home failed", e)
+        }
     }
 
     private fun showOverlay() {
@@ -113,7 +136,7 @@ class LaunchService : Service() {
         super.onDestroy()
     }
 
-    private fun buildNotification(): Notification {
+    private fun buildNotification(text: String): Notification {
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
             NotificationChannel(
@@ -123,7 +146,7 @@ class LaunchService : Service() {
             ),
         )
         return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.notif_title))
+            .setContentTitle(text)
             .setSmallIcon(R.drawable.ic_launcher)
             .setOngoing(true)
             .build()
@@ -133,7 +156,7 @@ class LaunchService : Service() {
         private const val TAG = "BootDelay"
         private const val CHANNEL_ID = "launch"
         private const val NOTIF_ID = 1
-        private const val TAIL_MS = 3000L
+        private const val TAIL_MS = 2000L
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, LaunchService::class.java))
