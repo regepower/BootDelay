@@ -5,9 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
@@ -16,6 +14,7 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
@@ -75,7 +74,7 @@ class MainActivity : Activity() {
             button("Test") {
                 save()
                 LaunchService.start(this)
-            },
+            }.also { styleButton(it, R.color.md_primary, R.color.md_on_primary) },
             weight(),
         )
         root.addView(buttons)
@@ -127,8 +126,12 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        tint(overlayBtn, Settings.canDrawOverlays(this))
-        tint(batteryBtn, getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName))
+        showStatus(overlayBtn, "Overlay", Settings.canDrawOverlays(this))
+        showStatus(
+            batteryBtn,
+            "Akku",
+            getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName),
+        )
     }
 
     override fun onPause() {
@@ -136,13 +139,29 @@ class MainActivity : Activity() {
         super.onPause()
     }
 
-    private fun tint(b: Button, ok: Boolean) {
-        b.backgroundTintList = ColorStateList.valueOf(if (ok) GREEN else RED)
-        b.setTextColor(Color.WHITE)
+    /** Tonal (primary container) when granted, error container when missing. */
+    private fun showStatus(b: Button, label: String, ok: Boolean) {
+        b.text = if (ok) "$label ✓" else label
+        if (ok) {
+            styleButton(b, R.color.md_container, R.color.md_on_container)
+        } else {
+            styleButton(b, R.color.md_error_container, R.color.md_on_error_container)
+        }
+    }
+
+    private fun styleButton(b: Button, fill: Int, text: Int) {
+        b.setBackgroundResource(R.drawable.bg_btn)
+        b.backgroundTintList = ColorStateList.valueOf(getColor(fill))
+        b.setTextColor(getColor(text))
+        b.isAllCaps = false
+        b.stateListAnimator = null
+        b.minHeight = 0
+        b.minimumHeight = (40 * dp).toInt()
     }
 
     private fun header() = TextView(this).apply {
         textSize = 13f
+        setTextColor(getColor(R.color.md_primary))
         setTypeface(typeface, android.graphics.Typeface.BOLD)
         setPadding(0, (6 * dp).toInt(), 0, (2 * dp).toInt())
     }
@@ -150,10 +169,8 @@ class MainActivity : Activity() {
     private fun appList(a: AppAdapter) = RecyclerView(this).apply {
         layoutManager = LinearLayoutManager(context)
         adapter = a
-        background = GradientDrawable().apply {
-            setStroke((1 * dp).toInt(), Color.argb(120, 150, 150, 150))
-            cornerRadius = 8 * dp
-        }
+        setBackgroundResource(R.drawable.bg_card)
+        clipToOutline = true
         setPadding(dp.toInt(), dp.toInt(), dp.toInt(), dp.toInt())
         clipToPadding = true
     }
@@ -232,7 +249,10 @@ class MainActivity : Activity() {
         }.start()
     }
 
-    private fun weight() = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+    private fun weight() = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+        val m = (3 * dp).toInt()
+        setMargins(m, 0, m, 0)
+    }
 
     private fun button(text: String, onClick: () -> Unit) = Button(this).apply {
         this.text = text
@@ -294,6 +314,9 @@ class MainActivity : Activity() {
                 layoutParams = RecyclerView.LayoutParams(-1, -2)
                 isClickable = true
                 isFocusable = true
+                val tv = TypedValue()
+                ctx.theme.resolveAttribute(android.R.attr.selectableItemBackground, tv, true)
+                setBackgroundResource(tv.resourceId)
             }
             val size = (36 * dp).toInt()
             val icon = ImageView(ctx)
@@ -324,10 +347,5 @@ class MainActivity : Activity() {
             holder.pkg.text = item.pkg
             holder.check.isChecked = item.selected
         }
-    }
-
-    private companion object {
-        val RED = Color.rgb(198, 40, 40)
-        val GREEN = Color.rgb(46, 125, 50)
     }
 }
