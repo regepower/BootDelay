@@ -4,7 +4,7 @@
     <string name="app_name" translatable="false">BootDelay</string>
     <string name="channel_name">App launch</string>
     <string name="notif_title">BootDelay is starting apps</string>
-    <string name="notif_starting">Starting %1$s (%2$d/%3$d)</string>
+    <string name="toast_starting">Starting %1$s (%2$d/%3$d)</string>
 
     <string name="btn_overlay">Overlay</string>
     <string name="btn_battery">Battery</string>

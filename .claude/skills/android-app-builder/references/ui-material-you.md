@@ -23,5 +23,8 @@
 - Persist after every change and in `onPause`.
 - Drag sorting: RecyclerView + `ItemTouchHelper` (long-press drag) works but costs ~110 KB of the APK (measured; `StaggeredGridLayoutManager` etc. are kept by consumer rules and can't be shrunk). Zero-dependency alternative (not yet built/tested here): `ListView` + framework `View.startDragAndDrop` on long click, `OnDragListener` on the list with `pointToPosition` and edge auto-scroll — ~21 KB total APK instead of ~125 KB. Offer it when size matters and tell the user the drag UX needs a device test.
 
+## Orientation lock
+`android:screenOrientation="portrait"` on the activity locks phones to portrait. With targetSdk 36 Android 16 ignores `screenOrientation`, `resizeableActivity` and aspect-ratio limits on screens ≥ 600dp (tablets, unfolded foldables) except for games; the opt-out property `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` is temporary (gone at targetSdk 37). So build layouts that survive landscape/wide windows even when portrait is requested. Source: developer.android.com "Behavior changes: Apps targeting Android 16 or higher".
+
 ## Heavier UI libraries — cost
 RecyclerView alone ≈ +105 KB APK (incl. androidx.core/collection). Material Components / Compose were not measured; expect hundreds of KB to MBs. The whole Material You styling above: ≈ +2.2 KB, nav-bar theme ≈ +0.6 KB.

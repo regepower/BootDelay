@@ -16,6 +16,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 
 /**
  * Starts the selected apps one after another.
@@ -67,10 +68,7 @@ class LaunchService : Service() {
         } catch (e: PackageManager.NameNotFoundException) {
             pkg
         }
-        getSystemService(NotificationManager::class.java).notify(
-            NOTIF_ID,
-            buildNotification(getString(R.string.notif_starting, label, index + 1, pkgs.size)),
-        )
+        Toast.makeText(this, getString(R.string.toast_starting, label, index + 1, pkgs.size), Toast.LENGTH_SHORT).show()
         val launch = packageManager.getLaunchIntentForPackage(pkg)
         if (launch == null) {
             Log.w(TAG, "no launch intent for $pkg")

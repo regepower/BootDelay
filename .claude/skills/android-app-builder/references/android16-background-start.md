@@ -8,7 +8,7 @@ BOOT_COMPLETED receiver
         ├─ startForeground(id, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         ├─ wait initial delay (Handler.postDelayed)
         ├─ WindowManager.addView(1x1 View, TYPE_APPLICATION_OVERLAY, NOT_FOCUSABLE|NOT_TOUCHABLE)
-        ├─ for each package: update notification "Starte <App> (i/n)", startActivity(launchIntent + FLAG_ACTIVITY_NEW_TASK), wait gap
+        ├─ for each package: Toast "Starte <App> (i/n)", startActivity(launchIntent + FLAG_ACTIVITY_NEW_TASK), wait gap
         ├─ wait gap once more, startActivity(HOME intent)  // user ends on the home screen
         └─ removeView(overlay), stopForeground, stopSelf
 ```
@@ -45,4 +45,5 @@ Why: apps targeting 15+ may start activities from the background if they hold `S
 - If overlay permission is missing or the list is empty, finish immediately (still after `startForeground`, or the system kills the app for not calling it in time).
 - Order of apps = user's order; persist as newline-joined package names in SharedPreferences; prune uninstalled packages on load.
 - Launch intents via `packageManager.getLaunchIntentForPackage`; label via `getApplicationLabel` for the notification.
+- Progress per app is shown as a **Toast** (`Toast.makeText(...).show()` from the main-looper Handler; plain text toasts are still allowed from the background). The foreground service must still have its notification — keep it static (title only) instead of updating it per app.
 - Reference implementation: `assets/reference-app/app/src/main/java/de/regepower/bootdelay/LaunchService.kt`.
