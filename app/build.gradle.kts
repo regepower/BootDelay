@@ -31,7 +31,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // Without release secrets, sign with the debug key so the APK stays installable.
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
@@ -44,7 +44,23 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            // No runtime null-check calls (kotlin.jvm.internal.Intrinsics) in the bytecode.
+            freeCompilerArgs.addAll("-Xno-param-assertions", "-Xno-call-assertions", "-Xno-receiver-assertions")
         }
+    }
+
+    // Size: deflate classes.dex inside the APK (AGP stores it uncompressed for minSdk >= 28).
+    packaging {
+        dex { useLegacyPackaging = true }
+        resources {
+            excludes += setOf("kotlin/**", "kotlin-tooling-metadata.json", "META-INF/*.version")
+        }
+    }
+
+    // Size: no dependency metadata block in the APK signing block.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     lint {
