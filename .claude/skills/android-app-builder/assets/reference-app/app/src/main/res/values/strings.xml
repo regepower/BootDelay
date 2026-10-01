@@ -11,7 +11,7 @@
     <string name="btn_test">Test</string>
     <string name="help_overlay">Permission “Display over other apps”. Without it Android does not let apps start from the background.</string>
     <string name="help_battery">Turn off battery optimization for BootDelay so the start after boot is not throttled.</string>
-    <string name="help_test">Saves the settings and starts the selected apps right now, like after a reboot.</string>
+    <string name="help_test">Saves the settings and starts the selected apps right now, skipping the start delay.</string>
 
     <string name="label_start">Start</string>
     <string name="label_gap">Gap</string>
