@@ -1,6 +1,6 @@
 # App icon without PNGs (adaptive vector icon)
 
-With minSdk ≥ 26 (here 29) one XML set replaces all launcher PNGs; whole icon ≈ 1–2 KB.
+With minSdk ≥ 26 (here 29) one XML set replaces all launcher PNGs. Measured cost of the full icon set (foreground + monochrome + notification glyph + adaptive XML, replacing a simple old vector): +2 428 B (130 263 → 132 691).
 
 ## Files
 - `res/mipmap-anydpi/ic_launcher.xml`: `<adaptive-icon>` with `<background android:drawable="@color/ic_launcher_background"/>`, `<foreground android:drawable="@drawable/ic_launcher_foreground"/>`, `<monochrome android:drawable="@drawable/ic_launcher_monochrome"/>` (themed icon, Android 13+; only the alpha channel is used). Use `mipmap-anydpi`, not `-v26` (lint flags the redundant qualifier at minSdk 26+). Manifest: `android:icon="@mipmap/ic_launcher"`.
