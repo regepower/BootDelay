@@ -15,11 +15,11 @@ android {
         versionName = "1.0"
     }
 
-    signing {
-        val ks = System.getenv("KEYSTORE_FILE")
-        if (ks != null) {
-            signingConfigs.create("release") {
-                storeFile = file(ks)
+    val keystorePath: String? = System.getenv("KEYSTORE_FILE")
+    if (keystorePath != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystorePath)
                 storePassword = System.getenv("KEYSTORE_PASSWORD")
                 keyAlias = System.getenv("KEY_ALIAS")
                 keyPassword = System.getenv("KEY_PASSWORD")
