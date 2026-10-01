@@ -57,6 +57,7 @@ jobs:
         if: always()
         run: |
           APK=$(ls app/build/outputs/apk/release/*.apk)
+          echo "APK_BYTES=$(stat -c %s "$APK")" >> "$GITHUB_ENV"
           AM="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
           "$AM" dex packages --defined-only --proguard-folder app/build/outputs/mapping/release "$APK" > "$RUNNER_TEMP/dex.txt" || true
           {
@@ -71,6 +72,9 @@ jobs:
             echo "## Biggest dex classes (bytes)"
             awk -F'\t' '$1 ~ /^C/ {print $3, $4}' "$RUNNER_TEMP/dex.txt" | sort -rn | head -25
           } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "Release APK: ${{ env.APK_BYTES }} bytes"
+        run: echo "release apk ${{ env.APK_BYTES }} bytes"
 
       - uses: actions/upload-artifact@v4
         with:
