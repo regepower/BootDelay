@@ -4,35 +4,40 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.Editable
+import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.TextView
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.util.Collections
 import java.util.Locale
 
 class MainActivity : Activity() {
     private class AppItem(val label: String, val pkg: String, val icon: Drawable, var selected: Boolean)
 
     private lateinit var prefs: Prefs
-    private lateinit var status: TextView
+    private lateinit var overlayBtn: Button
+    private lateinit var batteryBtn: Button
     private lateinit var initial: EditText
     private lateinit var gap: EditText
-    private lateinit var search: EditText
     private lateinit var selectedHeader: TextView
     private val selectedAdapter = AppAdapter()
     private val availableAdapter = AppAdapter()
@@ -46,38 +51,47 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         prefs = Prefs(this)
 
-        val pad = (12 * dp).toInt()
+        val pad = (8 * dp).toInt()
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(pad, pad, pad, pad)
             fitsSystemWindows = true
         }
-        status = TextView(this)
-        root.addView(status)
 
-        val perms = LinearLayout(this)
-        perms.addView(button("Overlay") {
+        val buttons = LinearLayout(this)
+        overlayBtn = button("Overlay") {
             startActivity(
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
             )
-        }, weight())
-        perms.addView(button("Akku") {
+        }
+        batteryBtn = button("Akku") {
             startActivity(
                 Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")),
             )
-        }, weight())
-        perms.addView(button("Test") {
-            save()
-            LaunchService.start(this)
-        }, weight())
-        root.addView(perms)
+        }
+        buttons.addView(overlayBtn, weight())
+        buttons.addView(batteryBtn, weight())
+        buttons.addView(
+            button("Test") {
+                save()
+                LaunchService.start(this)
+            },
+            weight(),
+        )
+        root.addView(buttons)
 
-        val delays = LinearLayout(this)
-        initial = numberField("Start (Sek.)", prefs.initialDelaySec, delays)
-        gap = numberField("Abstand (Sek.)", prefs.gapSec, delays)
+        val delays = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        initial = delayField(
+            "Start", prefs.initialDelaySec, delays,
+            "Wartezeit nach dem Boot, bevor die erste App startet",
+        )
+        gap = delayField(
+            "Abstand", prefs.gapSec, delays,
+            "Pause zwischen den App-Starts und vor dem Home-Bildschirm",
+        )
         root.addView(delays)
 
-        search = EditText(this).apply {
+        val search = EditText(this).apply {
             hint = "Apps suchen…"
             setSingleLine()
             inputType = InputType.TYPE_CLASS_TEXT
@@ -94,10 +108,16 @@ class MainActivity : Activity() {
 
         selectedHeader = header()
         root.addView(selectedHeader)
-        root.addView(appList(selectedAdapter), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        val selectedList = appList(selectedAdapter)
+        root.addView(selectedList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         root.addView(header().apply { text = "Verfügbar" })
-        root.addView(appList(availableAdapter), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.4f))
+        root.addView(
+            appList(availableAdapter),
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.4f),
+        )
         setContentView(root)
+
+        attachDragSorting(selectedList)
 
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
@@ -107,9 +127,8 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        val overlayOk = Settings.canDrawOverlays(this)
-        val battOk = getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName)
-        status.text = "Overlay: ${if (overlayOk) "OK" else "FEHLT"}  |  Akku: ${if (battOk) "OK" else "optimiert"}"
+        tint(overlayBtn, Settings.canDrawOverlays(this))
+        tint(batteryBtn, getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName))
     }
 
     override fun onPause() {
@@ -117,15 +136,47 @@ class MainActivity : Activity() {
         super.onPause()
     }
 
+    private fun tint(b: Button, ok: Boolean) {
+        b.backgroundTintList = ColorStateList.valueOf(if (ok) GREEN else RED)
+        b.setTextColor(Color.WHITE)
+    }
+
     private fun header() = TextView(this).apply {
         textSize = 13f
         setTypeface(typeface, android.graphics.Typeface.BOLD)
-        setPadding(0, (8 * dp).toInt(), 0, (4 * dp).toInt())
+        setPadding(0, (6 * dp).toInt(), 0, (2 * dp).toInt())
     }
 
-    private fun appList(a: AppAdapter) = ListView(this).apply {
+    private fun appList(a: AppAdapter) = RecyclerView(this).apply {
+        layoutManager = LinearLayoutManager(context)
         adapter = a
-        setOnItemClickListener { _, _, pos, _ -> toggle(a.getItem(pos)) }
+        background = GradientDrawable().apply {
+            setStroke((1 * dp).toInt(), Color.argb(120, 150, 150, 150))
+            cornerRadius = 8 * dp
+        }
+        setPadding(dp.toInt(), dp.toInt(), dp.toInt(), dp.toInt())
+        clipToPadding = true
+    }
+
+    private fun attachDragSorting(list: RecyclerView) {
+        val callback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            override fun onMove(rv: RecyclerView, from: RecyclerView.ViewHolder, to: RecyclerView.ViewHolder): Boolean {
+                val a = from.bindingAdapterPosition
+                val b = to.bindingAdapterPosition
+                if (a < 0 || b < 0) return false
+                Collections.swap(order, a, b)
+                selectedAdapter.move(a, b)
+                return true
+            }
+
+            override fun onSwiped(holder: RecyclerView.ViewHolder, direction: Int) = Unit
+
+            override fun clearView(rv: RecyclerView, holder: RecyclerView.ViewHolder) {
+                super.clearView(rv, holder)
+                save()
+            }
+        }
+        ItemTouchHelper(callback).attachToRecyclerView(list)
     }
 
     /** Selected apps keep their start order (new ones are appended); the rest is filtered alphabetically. */
@@ -140,7 +191,7 @@ class MainActivity : Activity() {
     private fun refreshLists() {
         val byPkg = all.associateBy { it.pkg }
         selectedAdapter.set(order.mapNotNull { byPkg[it] })
-        selectedHeader.text = "Ausgewählt (${selectedAdapter.count}) – Startreihenfolge"
+        selectedHeader.text = "Ausgewählt (${selectedAdapter.itemCount}) – halten & ziehen zum Sortieren"
         availableAdapter.set(
             all.filter { !it.selected }
                 .filter { query.isEmpty() || it.label.lowercase(Locale.getDefault()).contains(query) || it.pkg.contains(query) }
@@ -188,56 +239,95 @@ class MainActivity : Activity() {
         setOnClickListener { onClick() }
     }
 
-    private fun numberField(label: String, value: Int, parent: LinearLayout): EditText {
-        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        col.addView(TextView(this).apply { text = label })
+    /** "Label [ 123 ] Sek" in one row; long-press shows [help] as tooltip. */
+    private fun delayField(label: String, value: Int, parent: LinearLayout, help: String): EditText {
         val field = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_NUMBER
+            filters = arrayOf(InputFilter.LengthFilter(3))
             setText(value.toString())
+            gravity = Gravity.CENTER
+            hint = "0"
+            minEms = 3
+            tooltipText = help
+            contentDescription = help
         }
-        col.addView(field)
-        parent.addView(col, weight())
+        val labelView = TextView(this).apply { text = label; tooltipText = help }
+        val unit = TextView(this).apply { text = "Sek" }
+        val m = (6 * dp).toInt()
+        parent.addView(labelView, LinearLayout.LayoutParams(-2, -2).apply { marginStart = m })
+        parent.addView(field)
+        parent.addView(unit, LinearLayout.LayoutParams(-2, -2).apply { marginEnd = m * 2 })
         return field
     }
 
-    private inner class AppAdapter : BaseAdapter() {
-        private var shown: List<AppItem> = emptyList()
+    private inner class AppAdapter : RecyclerView.Adapter<AppAdapter.Holder>() {
+        private val items = mutableListOf<AppItem>()
 
-        fun set(items: List<AppItem>) {
-            shown = items
+        inner class Holder(
+            row: LinearLayout,
+            val icon: ImageView,
+            val name: TextView,
+            val pkg: TextView,
+            val check: CheckBox,
+        ) : RecyclerView.ViewHolder(row)
+
+        fun set(newItems: List<AppItem>) {
+            items.clear()
+            items.addAll(newItems)
             notifyDataSetChanged()
         }
 
-        override fun getCount() = shown.size
-        override fun getItem(position: Int) = shown[position]
-        override fun getItemId(position: Int) = position.toLong()
+        fun move(from: Int, to: Int) {
+            Collections.swap(items, from, to)
+            notifyItemMoved(from, to)
+        }
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val row = convertView as? LinearLayout ?: LinearLayout(this@MainActivity).apply {
+        override fun getItemCount() = items.size
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            val ctx = parent.context
+            val p = (6 * dp).toInt()
+            val row = LinearLayout(ctx).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                val p = (8 * dp).toInt()
                 setPadding(p, p, p, p)
-                val size = (40 * dp).toInt()
-                addView(ImageView(context), LinearLayout.LayoutParams(size, size))
-                val texts = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-                texts.addView(TextView(context).apply { textSize = 16f })
-                texts.addView(TextView(context).apply { textSize = 11f; alpha = 0.6f })
-                addView(
-                    texts,
-                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-                        marginStart = (12 * dp).toInt()
-                    },
-                )
-                addView(CheckBox(context).apply { isClickable = false; isFocusable = false })
+                layoutParams = RecyclerView.LayoutParams(-1, -2)
+                isClickable = true
+                isFocusable = true
             }
-            val item = getItem(position)
-            (row.getChildAt(0) as ImageView).setImageDrawable(item.icon)
-            val texts = row.getChildAt(1) as LinearLayout
-            (texts.getChildAt(0) as TextView).text = item.label
-            (texts.getChildAt(1) as TextView).text = item.pkg
-            (row.getChildAt(2) as CheckBox).isChecked = item.selected
-            return row
+            val size = (36 * dp).toInt()
+            val icon = ImageView(ctx)
+            row.addView(icon, LinearLayout.LayoutParams(size, size))
+            val texts = LinearLayout(ctx).apply { orientation = LinearLayout.VERTICAL }
+            val name = TextView(ctx).apply { textSize = 15f }
+            val pkg = TextView(ctx).apply { textSize = 10f; alpha = 0.6f }
+            texts.addView(name)
+            texts.addView(pkg)
+            row.addView(
+                texts,
+                LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = (10 * dp).toInt() },
+            )
+            val check = CheckBox(ctx).apply { isClickable = false; isFocusable = false }
+            row.addView(check)
+            val holder = Holder(row, icon, name, pkg, check)
+            row.setOnClickListener {
+                val pos = holder.bindingAdapterPosition
+                if (pos >= 0) toggle(items[pos])
+            }
+            return holder
         }
+
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            val item = items[position]
+            holder.icon.setImageDrawable(item.icon)
+            holder.name.text = item.label
+            holder.pkg.text = item.pkg
+            holder.check.isChecked = item.selected
+        }
+    }
+
+    private companion object {
+        val RED = Color.rgb(198, 40, 40)
+        val GREEN = Color.rgb(46, 125, 50)
     }
 }
