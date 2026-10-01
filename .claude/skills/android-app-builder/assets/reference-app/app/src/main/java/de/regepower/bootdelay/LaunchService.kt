@@ -147,7 +147,7 @@ class LaunchService : Service() {
         )
         return Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(text)
-            .setSmallIcon(R.drawable.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .build()
     }
