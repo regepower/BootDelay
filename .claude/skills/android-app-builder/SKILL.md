@@ -43,7 +43,7 @@ Use `Theme.DeviceDefault.DayNight` as parent and map your own `md_*` colors to `
 
 ## Localization
 
-Default `values/strings.xml` is English and acts as the automatic fallback for any device language that has no translation; add `values-de/` (or the user's language) for the translation. Lint's `MissingTranslation` check is the CI guard that both files stay in sync. Syntax pitfalls (`&amp;`, apostrophes, positional format args) and testing advice: `references/localization.md`. Cost: well under 1 KB.
+Default `values/strings.xml` is English and acts as the automatic fallback for any device language that has no translation; add `values-de/` (or the user's language) for the translation. Lint's `MissingTranslation` check is the CI guard that both files stay in sync. Syntax pitfalls (`&amp;`, apostrophes, positional format args) and testing advice: `references/localization.md`. Measured cost: +1 984 B for ~20 strings in two languages (128 279 → 130 263).
 
 ## Size optimization
 

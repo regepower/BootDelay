@@ -20,7 +20,7 @@ Rule: **every user-visible string lives in `res/values*/strings.xml`; the defaul
 - Optional: `android { androidResources { localeFilters += listOf("en", "de") } }` strips library translations; irrelevant when there are no UI libraries (size effect not measured).
 
 ## Cost
-A full second language for ~20 strings costs well under 1 KB in the APK. Verify with the CI size step name before/after (see `size-optimization.md`).
+Measured: moving ~20 UI strings into resources plus a full German translation added 1 984 B to the release APK (128 279 → 130 263). Verify with the CI size step name before/after (see `size-optimization.md`).
 
 ## When the user's language is not German
 Take the user's language as the second `values-xx` and keep English as default. Answer the user in their language regardless; the app's fallback language is English.

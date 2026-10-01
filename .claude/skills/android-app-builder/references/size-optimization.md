@@ -12,6 +12,7 @@
 | RecyclerView/AndroidX removed (old non-draggable list UI) | 20 804 |
 | later: Material You styling | +2 216 (127 683) |
 | later: nav-bar theme, tooltips, alignment | +596 (128 279) |
+| later: string resources + German translation (EN default) | +1 984 (130 263) |
 
 Debug APK was 4.1 MB (zip artifact 1.5 MB) — never ship or compare against it.
 
