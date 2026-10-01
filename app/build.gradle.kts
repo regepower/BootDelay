@@ -29,8 +29,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            signingConfigs.findByName("release")?.let { signingConfig = it }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            // Without release secrets, sign with the debug key so the APK stays installable.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
 

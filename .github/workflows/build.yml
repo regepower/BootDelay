@@ -41,7 +41,6 @@ jobs:
           if-no-files-found: ignore
 
       - name: Release build (signed if secrets set)
-        if: startsWith(github.ref, 'refs/tags/v')
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -53,6 +52,11 @@ jobs:
             export KEYSTORE_FILE="$RUNNER_TEMP/release.jks"
           fi
           gradle --no-daemon assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BootDelay-release
+          path: app/build/outputs/apk/release/*.apk
 
       - name: GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
