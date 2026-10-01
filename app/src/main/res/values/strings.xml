@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BootDelay</string>
+    <string name="channel_name">App-Start</string>
+    <string name="notif_title">BootDelay startet Apps</string>
+</resources>
