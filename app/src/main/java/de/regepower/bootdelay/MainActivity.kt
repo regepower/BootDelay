@@ -16,6 +16,7 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
@@ -58,12 +59,18 @@ class MainActivity : Activity() {
         }
 
         val buttons = LinearLayout(this)
-        overlayBtn = button("Overlay") {
+        overlayBtn = button(
+            "Overlay",
+            "Berechtigung \"Über anderen Apps einblenden\". Ohne sie darf Android keine Apps aus dem Hintergrund starten.",
+        ) {
             startActivity(
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
             )
         }
-        batteryBtn = button("Akku") {
+        batteryBtn = button(
+            "Akku",
+            "Akku-Optimierung für BootDelay ausschalten, damit der Start nach dem Boot nicht gebremst wird.",
+        ) {
             startActivity(
                 Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")),
             )
@@ -71,7 +78,10 @@ class MainActivity : Activity() {
         buttons.addView(overlayBtn, weight())
         buttons.addView(batteryBtn, weight())
         buttons.addView(
-            button("Test") {
+            button(
+                "Test",
+                "Speichert die Einstellungen und startet die ausgewählten Apps sofort, wie nach einem Neustart.",
+            ) {
                 save()
                 LaunchService.start(this)
             }.also { styleButton(it, R.color.md_primary, R.color.md_on_primary) },
@@ -84,6 +94,7 @@ class MainActivity : Activity() {
             "Start", prefs.initialDelaySec, delays,
             "Wartezeit nach dem Boot, bevor die erste App startet",
         )
+        delays.addView(View(this), LinearLayout.LayoutParams(0, 1, 1f))
         gap = delayField(
             "Abstand", prefs.gapSec, delays,
             "Pause zwischen den App-Starts und vor dem Home-Bildschirm",
@@ -254,8 +265,9 @@ class MainActivity : Activity() {
         setMargins(m, 0, m, 0)
     }
 
-    private fun button(text: String, onClick: () -> Unit) = Button(this).apply {
+    private fun button(text: String, help: String, onClick: () -> Unit) = Button(this).apply {
         this.text = text
+        tooltipText = help
         setOnClickListener { onClick() }
     }
 
@@ -265,7 +277,7 @@ class MainActivity : Activity() {
             inputType = InputType.TYPE_CLASS_NUMBER
             filters = arrayOf(InputFilter.LengthFilter(3))
             setText(value.toString())
-            gravity = Gravity.CENTER
+            gravity = Gravity.END
             hint = "0"
             minEms = 3
             tooltipText = help
