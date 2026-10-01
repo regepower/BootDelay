@@ -26,3 +26,11 @@ Pitfalls seen:
 4. `list_workflow_run_artifacts` shows artifact zip sizes (zip of the APK, slightly smaller than the APK).
 
 For experiments (A/B size matrix) a throw-away `workflow_dispatch`/path-filtered-push workflow with a job matrix + a final `report` job that downloads tiny result artifacts and prints one table (no Gradle in that job → short log tail) worked well; delete it afterwards.
+
+## Before/after measurements in one go
+To compare a change against a baseline in the same pipeline, push the *instrumentation* commit (e.g. the size-in-step-name step) and the *change* commit back to back: GitHub starts one run per commit, each builds its own SHA, and both finish within the same ~4 minutes. Read both runs' step names. No rebuild of an old commit needed.
+
+## Repo hygiene (the session's stop hook checks it)
+- Never leave scratch or packaging output (`*.skill`, preview PNGs, drafts) inside the cloned repo directory: the stop hook reports untracked files and demands commit + push. Write such files to the scratchpad or a sibling directory, and send them with the file tool.
+- If a stray file already sits in the repo: delete it when it is only a delivery copy, commit it when the user wants it versioned.
+- Chain validation and publishing with `&&` and check the *whole* output: a failed `quick_validate` (e.g. skill description over 1024 chars) must stop the push. Set variables (paths) in the same command block in which they are used.

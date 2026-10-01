@@ -53,6 +53,10 @@ Default `values/strings.xml` is English and acts as the automatic fallback for a
 
 Measured on the reference app (release APK bytes): 255 292 → 138 760 (dex deflate) → 125 467 (metadata excludes); dropping RecyclerView/AndroidX → 20 804. AndroidX was 84 % of the dex. Method (apkanalyzer report + A/B matrix) and the full table: `references/size-optimization.md`. Rule of thumb: raise the question "is this library worth N KB?" before adding it, and measure instead of estimating.
 
+## Feedback loop with device screenshots
+
+The user tests each CI build on their phone and replies with screenshots plus short remarks ("sieht gut aus, aber…"). Read the screenshot literally (spacing, colours, bars, truncated text), name the cause in one line (e.g. grey bar under the 3-button navigation = contrast scrim → `enforceNavigationBarContrast=false`), fix, push, report: what changed, CI status, APK size delta, artifact name. Typical asks seen: more room for the lists, status colours on buttons, right-aligned fields, long-press help, search + selected-first lists, language fallback, icon drafts. Offer numbered drafts for visual choices and measure size before/after every visual change.
+
 ## Communication style with this user
 
 Answers short and direct, bullets, German unless they switch; no closing summaries. Research the web when an Android behavior is uncertain (cite sources), ask only when a real decision is the user's. After each milestone give: what changed, CI status, APK size, where to download.

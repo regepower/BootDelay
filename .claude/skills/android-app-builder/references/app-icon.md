@@ -13,5 +13,8 @@ With minSdk ≥ 26 (here 29) one XML set replaces all launcher PNGs. Measured co
 - Preview before pushing: render an SVG twin of the vector clipped to `viewBox="18 18 72 72"` as circle (r 36) and squircle, with a dashed r = 33 guide, plus a 48 px version and the white notification glyph. Headless Chromium from `/opt/pw-browsers/chromium-*/chrome-linux/chrome --headless --no-sandbox --screenshot=out.png --window-size=W,H file://…` renders it (use window height ≥ the page height + ~100, or the bottom is cut off). No cairosvg/PIL in the sandbox.
 - Offer 4–6 numbered drafts in one contact sheet (large rounded square + small circle + caption) and let the user choose by number and colour; then build only the chosen one.
 
+## After installing
+Launchers cache icons: if the old icon stays after an update, uninstall and reinstall once. Themed icons only appear when the user enables "Themed icons" in the wallpaper/launcher settings (Android 13+).
+
 ## Design notes from BootDelay
 Concept "delay × app list": 270° arc with arrowhead (counter-clockwise restart arrow) in accent amber `#FFC857` around a white bullet list, on user colour `#B10010`. Alternatives that were drafted: arrow around 3×3 app grid, grid + clock badge, stopwatch with list, fading tiles with progress ring, grid with clock in the centre.
