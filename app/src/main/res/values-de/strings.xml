@@ -9,7 +9,7 @@
     <string name="btn_test">Test</string>
     <string name="help_overlay">Berechtigung „Über anderen Apps einblenden“. Ohne sie darf Android keine Apps aus dem Hintergrund starten.</string>
     <string name="help_battery">Akku-Optimierung für BootDelay ausschalten, damit der Start nach dem Boot nicht gebremst wird.</string>
-    <string name="help_test">Speichert die Einstellungen und startet die ausgewählten Apps sofort, wie nach einem Neustart.</string>
+    <string name="help_test">Speichert die Einstellungen und startet die ausgewählten Apps sofort, ohne die Start-Wartezeit.</string>
 
     <string name="label_start">Start</string>
     <string name="label_gap">Abstand</string>

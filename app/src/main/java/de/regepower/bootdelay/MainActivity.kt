@@ -50,6 +50,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = Prefs(this)
+        if (prefs.lastBootCount == -1) prefs.markBootHandled(this)
 
         val pad = (8 * dp).toInt()
         val root = LinearLayout(this).apply {
@@ -83,7 +84,7 @@ class MainActivity : Activity() {
                 getString(R.string.help_test),
             ) {
                 save()
-                LaunchService.start(this)
+                LaunchService.start(this, LaunchService.SOURCE_TEST)
             }.also { styleButton(it, R.color.md_primary, R.color.md_on_primary) },
             weight(),
         )

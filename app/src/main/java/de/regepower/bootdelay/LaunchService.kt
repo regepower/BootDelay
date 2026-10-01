@@ -40,6 +40,12 @@ class LaunchService : Service() {
             buildNotification(getString(R.string.notif_title)),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
         )
+        val source = intent?.getStringExtra(EXTRA_SOURCE)
+        if (source != SOURCE_BOOT && source != SOURCE_TEST) {
+            Log.w(TAG, "ignored start without a valid source: $source")
+            finish()
+            return START_NOT_STICKY
+        }
         val prefs = Prefs(this)
         val pkgs = prefs.packages
         if (pkgs.isEmpty() || !Settings.canDrawOverlays(this)) {
@@ -47,7 +53,8 @@ class LaunchService : Service() {
             finish()
             return START_NOT_STICKY
         }
-        val initialMs = prefs.initialDelaySec * 1000L
+        // Test skips the start delay: the first app is launched right away.
+        val initialMs = if (source == SOURCE_TEST) 0L else prefs.initialDelaySec * 1000L
         val gapMs = prefs.gapSec * 1000L
         handler.postDelayed({
             showOverlay()
@@ -156,8 +163,14 @@ class LaunchService : Service() {
         private const val NOTIF_ID = 1
         private const val TAIL_MS = 2000L
 
-        fun start(context: Context) {
-            context.startForegroundService(Intent(context, LaunchService::class.java))
+        const val SOURCE_BOOT = "boot"
+        const val SOURCE_TEST = "test"
+        private const val EXTRA_SOURCE = "source"
+
+        fun start(context: Context, source: String) {
+            context.startForegroundService(
+                Intent(context, LaunchService::class.java).putExtra(EXTRA_SOURCE, source),
+            )
         }
     }
 }
