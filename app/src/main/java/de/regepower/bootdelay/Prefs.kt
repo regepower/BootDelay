@@ -1,11 +1,13 @@
 package de.regepower.bootdelay
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.SystemClock
 import android.provider.Settings
 
 class Prefs(context: Context) {
-    private val sp = context.getSharedPreferences("bootdelay", Context.MODE_PRIVATE)
+    /** Raw store, also used for config export/import. */
+    val sp: SharedPreferences = context.getSharedPreferences("bootdelay", Context.MODE_PRIVATE)
 
     var initialDelaySec: Int
         get() = sp.getInt(KEY_INITIAL, 30)
@@ -36,6 +38,9 @@ class Prefs(context: Context) {
     }
 
     companion object {
+        /** Per-device boot bookkeeping: not part of an exported configuration. */
+        val DEVICE_KEYS = setOf(KEY_BOOT, KEY_UPTIME)
+
         fun currentBootCount(context: Context): Int =
             Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT, -1)
 

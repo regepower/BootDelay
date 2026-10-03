@@ -59,6 +59,8 @@ class MainActivity : Activity() {
             fitsSystemWindows = true
         }
 
+        root.addView(AppShell.header(this))
+
         val buttons = LinearLayout(this)
         overlayBtn = button(
             getString(R.string.btn_overlay),
@@ -134,6 +136,12 @@ class MainActivity : Activity() {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
         }
         loadApps()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        AppShell.onResult(this, requestCode, resultCode, data, prefs.sp, Prefs.DEVICE_KEYS)
     }
 
     override fun onResume() {
