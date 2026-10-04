@@ -41,6 +41,7 @@ Keep predicates in use: BootDelay boot counter keys, MinCalSync source/target ca
 - `ConfigIO.kt` is generic — copy unchanged: exports all entries of one SharedPreferences file with type tags (`b/i/l/f/s/ss`) plus `"app"` name and `"format": 1`; import validates the whole file first (wrong app, broken JSON or unknown type → false, nothing changed), then removes all non-kept keys + typed puts + `commit()`. `keep: (String) -> Boolean` marks device-specific keys (neither exported nor overwritten).
 - Expose the app's store (`Prefs.sp`). Do not export device-specific state (boot counters, calendar IDs that differ per phone) — keep those in a second prefs file or skip their keys.
 - After import: re-apply running services (e.g. restart the VPN), then `recreate()`.
+- **Pitfall (BootDelay, Oct 2026):** if the activity saves its UI in `onPause()`, an import gets overwritten: `recreate()` runs after `onResume`, so the old (after a fresh install: empty) UI is saved back. Set a flag in `onLoaded` (`configLoaded = true; recreate()`) and return early from `save()`.
 - Tested on the JVM with a fake `SharedPreferences` and org.json built from GitHub source (Maven Central and Google Maven are blocked in the sandbox): round trip, wrong app, broken JSON, unknown type.
 
 ## "Show the active item, pick from a dialog"
