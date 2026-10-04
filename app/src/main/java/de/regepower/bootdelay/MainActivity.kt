@@ -141,7 +141,7 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
-        AppShell.onResult(this, requestCode, resultCode, data, prefs.sp, Prefs.DEVICE_KEYS)
+        AppShell.onResult(this, requestCode, resultCode, data, prefs.sp, Prefs.DEVICE_KEYS::contains)
     }
 
     override fun onResume() {
@@ -344,7 +344,7 @@ class MainActivity : Activity() {
             row.addView(icon, LinearLayout.LayoutParams(size, size))
             val texts = LinearLayout(ctx).apply { orientation = LinearLayout.VERTICAL }
             val name = TextView(ctx).apply { textSize = 15f }
-            val pkg = TextView(ctx).apply { textSize = 10f; alpha = 0.6f }
+            val pkg = TextView(ctx).apply { textSize = 10f; setTextColor(getColor(R.color.md_on_surface_variant)) }
             texts.addView(name)
             texts.addView(pkg)
             row.addView(

@@ -1,6 +1,6 @@
 # App shell shared by all our apps (header, help, config save/load)
 
-User decision (MinDNSChanger, Oct 2026): every app gets the same top row; rolled out to BootDelay, MinCalSync, ZenDay (formerly MinCalWidget), MinDNSChanger.
+User decision (MinDNSChanger, Oct 2026): every app gets the same top row; rolled out to BootDelay, MinCalSync, ZenDay (formerly MinCalWidget), SwitchDNS (formerly MinDNSChanger).
 
 **Drop-in:** copy `AppShell.kt` + `ConfigIO.kt` from `regepower/ZenDay` (reference version; change only the package line), the vectors `ic_save/ic_load/ic_help`, the strings `help, help_ok, help_text, cfg_save, cfg_load, cfg_saved, cfg_loaded, cfg_invalid, cfg_error, cfg_overwrite ("%1$s überschreiben?"), cfg_overwrite_ok ("Überschreiben"), cfg_other_place ("Anderer Ort")` (EN + DE), then:
 ```kotlin
@@ -11,6 +11,8 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
     AppShell.onResult(this, requestCode, resultCode, data, prefs.sp, Prefs.DEVICE_KEYS::contains) { /* re-apply */ recreate() }
 }
 ```
+Renamed apps: `AppShell.legacyNames = listOf("OldName")` (SwitchDNS has it; add the 3-line `legacyNames` extension when copying from ZenDay) so config files saved under the old app name still load.
+
 Keep predicates in use: BootDelay boot counter keys, MinCalSync source/target calendar IDs + last result, ZenDay `*.cals` / `*.tasklists`. Existing app code stays untouched apart from the header row.
 
 ## Header row
@@ -42,4 +44,4 @@ Keep predicates in use: BootDelay boot counter keys, MinCalSync source/target ca
 - Tested on the JVM with a fake `SharedPreferences` and org.json built from GitHub source (Maven Central and Google Maven are blocked in the sandbox): round trip, wrong app, broken JSON, unknown type.
 
 ## "Show the active item, pick from a dialog"
-Long option lists (DNS servers, calendars) take too much room inline. Pattern: one card shows the active entry (bold name + small detail), tap → `AlertDialog.setSingleChoiceItems` with all entries and a neutral "Add" button; `+` / `−` icon buttons next to the card add an entry / delete the shown one (− disabled with alpha 0.3 for built-in entries).
+Long option lists (DNS servers, calendars) take too much room inline. Pattern (SwitchDNS): one card shows the active entry (bold name + small detail), tap → `AlertDialog.setAdapter` with own rows (non-clickable `RadioButton` + name + detail line) and a neutral "Add" button. User entries are marked `★`, listed first, and deleted by long-press (`dialog.listView.setOnItemLongClickListener` in `setOnShowListener`, confirm, reopen the list); presets show a toast instead. No +/− buttons on the main screen. Detail line: `sans-serif-condensed`, `maxLines = 1`, fixed height + `setAutoSizeTextTypeUniformWithConfiguration(10, 14, 1, SP)` so long values (two IPv4 addresses) shrink instead of wrapping.
