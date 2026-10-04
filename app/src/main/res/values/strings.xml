@@ -30,5 +30,8 @@
     <string name="cfg_loaded">Configuration loaded</string>
     <string name="cfg_invalid">Not a valid BootDelay configuration</string>
     <string name="cfg_error">File could not be written</string>
+    <string name="donate">Donate</string>
+    <string name="donate_text">This app weighs less than a photo. Support its development on Liberapay.</string>
+    <string name="donate_url" translatable="false">https://liberapay.com/regepower/donate</string>
     <string name="help_text"><b>What does the app do?</b>\nAfter every boot it starts the selected apps one after another, with a delay, so the phone can settle first.\n\n<b>Setup</b>\n1. \"Overlay\": allow \"Display over other apps\". Without it Android does not let apps be started from the background.\n2. \"Battery\": turn off battery optimization.\n3. Tap apps in the lower list to select them. Hold and drag in the upper list to change the order.\n4. \"Start\" = wait time after boot, \"Gap\" = pause between apps.\n5. \"Test\" runs the sequence right away (without the start delay).\n\n<b>Xiaomi / HyperOS</b>\nAlso allow \"Autostart\" for BootDelay in the system app settings.\n\n<b>Save / load</b>\nThe icons at the top store the app list and times in a file and restore them, e.g. on a new phone.</string>
 </resources>
