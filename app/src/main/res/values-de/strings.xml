@@ -28,6 +28,8 @@
     <string name="cfg_loaded">Konfiguration geladen</string>
     <string name="cfg_invalid">Keine gültige BootDelay-Konfiguration</string>
     <string name="cfg_error">Datei konnte nicht geschrieben werden</string>
+    <string name="donate">Spenden</string>
+    <string name="donate_text">Diese App wiegt weniger als ein Foto. Unterstütze die Entwicklung auf Liberapay.</string>
     <string name="help_text"><b>Was macht die App?</b>\nNach jedem Neustart startet sie die ausgewählten Apps nacheinander und verzögert, damit das Handy erst zur Ruhe kommt.\n\n<b>Einrichtung</b>\n1. „Overlay“: „Über anderen Apps einblenden“ erlauben. Ohne das lässt Android keine App-Starts aus dem Hintergrund zu.\n2. „Akku“: Akku-Optimierung ausschalten.\n3. Apps in der unteren Liste antippen. In der oberen Liste halten und ziehen ändert die Reihenfolge.\n4. „Start“ = Wartezeit nach dem Boot, „Abstand“ = Pause zwischen den Apps.\n5. „Test“ startet den Ablauf sofort (ohne Start-Wartezeit).\n\n<b>Xiaomi / HyperOS</b>\nZusätzlich in den System-App-Einstellungen „Autostart“ für BootDelay erlauben.\n\n<b>Speichern / Laden</b>\nDie Symbole oben sichern App-Liste und Zeiten in eine Datei und stellen sie wieder her, z. B. auf einem neuen Handy.</string>
     <string name="cfg_overwrite">%1$s überschreiben?</string>
     <string name="cfg_overwrite_ok">Überschreiben</string>

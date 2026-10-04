@@ -45,6 +45,9 @@ class MainActivity : Activity() {
     private val order = mutableListOf<String>()
     private var query = ""
 
+    /** True after a config import: the old UI must not write its values back (onPause before recreate). */
+    private var configLoaded = false
+
     private val dp get() = resources.displayMetrics.density
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,7 +144,10 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
-        AppShell.onResult(this, requestCode, resultCode, data, prefs.sp, Prefs.DEVICE_KEYS::contains)
+        AppShell.onResult(this, requestCode, resultCode, data, prefs.sp, Prefs.DEVICE_KEYS::contains) {
+            configLoaded = true
+            recreate()
+        }
     }
 
     override fun onResume() {
@@ -237,6 +243,7 @@ class MainActivity : Activity() {
     }
 
     private fun save() {
+        if (configLoaded) return
         prefs.initialDelaySec = initial.text.toString().toIntOrNull() ?: 30
         prefs.gapSec = gap.text.toString().toIntOrNull() ?: 10
         if (all.isNotEmpty()) {
