@@ -6,3 +6,7 @@ Startet ausgewählte Apps verzögert nach dem Boot (Android 10–16).
 - Setup: Overlay-Berechtigung erteilen, Akku-Optimierung aus, Apps wählen, Delays setzen.
 - Build: GitHub Actions (`.github/workflows/build.yml`), APK als Artifact; Tag `v*` → Release.
 - Signierung (optional): Secrets `KEYSTORE_B64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
+
+## Unterstützen
+
+Diese App wiegt weniger als ein Foto. Unterstütze die Entwicklung auf [Liberapay](https://liberapay.com/regepower/donate).
