@@ -59,9 +59,13 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
             export KEYSTORE_FILE="$RUNNER_TEMP/release.jks"
+            echo "SIGNING=release-key" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Secrets KEYSTORE_BASE64 / KEYSTORE_PASSWORD fehlen - signiere mit Debug-Key"
+            echo "SIGNING=debug-key" >> "$GITHUB_ENV"
           fi
           gradle --no-daemon assembleRelease
 
@@ -85,7 +89,7 @@ jobs:
             awk -F'\t' '$1 ~ /^C/ {print $3, $4}' "$RUNNER_TEMP/dex.txt" | sort -rn | head -25
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: "Release APK: ${{ env.APK_BYTES }} bytes"
+      - name: "Release APK: ${{ env.APK_BYTES }} bytes (${{ env.SIGNING }})"
         run: echo "release apk ${{ env.APK_BYTES }} bytes"
 
       - uses: actions/upload-artifact@v4
