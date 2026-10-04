@@ -59,7 +59,7 @@ class MainActivity : Activity() {
             fitsSystemWindows = true
         }
 
-        root.addView(AppShell.header(this))
+        root.addView(AppShell.header(this, prefs.sp, Prefs.DEVICE_KEYS::contains))
 
         val buttons = LinearLayout(this)
         overlayBtn = button(
