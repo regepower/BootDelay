@@ -44,5 +44,9 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Starts user-selected apps with a delay after boot" />
         </service>
+        <!-- Build day (ISO date) from build.gradle.kts, shown in the help dialog. -->
+        <meta-data
+            android:name="build_date"
+            android:value="${buildDate}" />
     </application>
 </manifest>

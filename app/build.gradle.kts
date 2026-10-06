@@ -1,4 +1,6 @@
 import java.security.KeyStore
+import java.time.LocalDate
+import java.time.ZoneId
 
 plugins {
     id("com.android.application")
@@ -13,8 +15,13 @@ android {
         applicationId = "de.regepower.bootdelay"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        // Major.minor by hand for bigger changes; the last part is the CI build number (#57 → 1.0.57).
+        // versionCode follows it, so every CI build installs as an update. Local builds: 1.0.0.
+        val build = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 0
+        versionCode = maxOf(build, 1)
+        versionName = "1.0.$build"
+        // Build day for the help dialog (manifest meta-data, no BuildConfig/resource needed).
+        manifestPlaceholders["buildDate"] = LocalDate.now(ZoneId.of("Europe/Berlin")).toString()
     }
 
     // Release key from CI secrets. Only KEYSTORE_BASE64 + KEYSTORE_PASSWORD are required: without
