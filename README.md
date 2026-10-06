@@ -9,7 +9,7 @@ Startet ausgewählte Apps verzögert nach dem Boot (Android 10–16).
 
 ## Unterstützen
 
-Diese App wiegt weniger als ein Foto. Unterstütze die Entwicklung auf [Liberapay](https://liberapay.com/regepower/donate) oder [GitHub Sponsors](https://github.com/sponsors/regepower).
+Diese App ist kleiner als ein Foto. Unterstütze die Entwicklung auf [Liberapay](https://liberapay.com/regepower/donate) oder [GitHub Sponsors](https://github.com/sponsors/regepower).
 
 ## Lizenz
 
