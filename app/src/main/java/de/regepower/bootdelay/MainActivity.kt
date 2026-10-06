@@ -21,8 +21,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,6 +41,7 @@ class MainActivity : Activity() {
     private lateinit var initial: EditText
     private lateinit var gap: EditText
     private lateinit var selectedHeader: TextView
+    private lateinit var loading: View
     private val selectedAdapter = AppAdapter()
     private val availableAdapter = AppAdapter()
     private var all: List<AppItem> = emptyList()
@@ -122,15 +125,22 @@ class MainActivity : Activity() {
         }
         root.addView(search)
 
+        // Both lists in one box; a loading overlay covers them until the app list is read (1-3 s).
+        val lists = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         selectedHeader = header()
-        root.addView(selectedHeader)
+        lists.addView(selectedHeader)
         val selectedList = appList(selectedAdapter)
-        root.addView(selectedList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-        root.addView(header().apply { text = getString(R.string.header_available) })
-        root.addView(
+        lists.addView(selectedList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        lists.addView(header().apply { text = getString(R.string.header_available) })
+        lists.addView(
             appList(availableAdapter),
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.4f),
         )
+        loading = loadingOverlay()
+        val box = FrameLayout(this)
+        box.addView(lists, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        box.addView(loading, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        root.addView(box, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         setContentView(root)
 
         attachDragSorting(selectedList)
@@ -272,8 +282,30 @@ class MainActivity : Activity() {
                 all = items
                 order.retainAll(items.map { it.pkg }.toSet())
                 refreshLists()
+                loading.visibility = View.GONE
             }
         }.start()
+    }
+
+    /** Spinner + "Loading apps…" on the surface colour; swallows taps while visible. */
+    private fun loadingOverlay() = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER
+        setBackgroundColor(getColor(R.color.md_surface))
+        isClickable = true
+        addView(
+            ProgressBar(context).apply {
+                isIndeterminate = true
+                indeterminateTintList = ColorStateList.valueOf(getColor(R.color.md_primary))
+            },
+        )
+        addView(
+            TextView(context).apply {
+                text = getString(R.string.loading_apps)
+                setTextColor(getColor(R.color.md_on_surface))
+                setPadding(0, (12 * dp).toInt(), 0, 0)
+            },
+        )
     }
 
     private fun weight() = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
