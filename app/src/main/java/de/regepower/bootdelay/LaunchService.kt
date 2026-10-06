@@ -32,7 +32,11 @@ class LaunchService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         if (running) return START_NOT_STICKY
         running = true
         startForeground(
@@ -63,18 +67,23 @@ class LaunchService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun launchNext(pkgs: List<String>, index: Int, gapMs: Long) {
+    private fun launchNext(
+        pkgs: List<String>,
+        index: Int,
+        gapMs: Long,
+    ) {
         if (index >= pkgs.size) {
             goHome()
             handler.postDelayed({ finish() }, TAIL_MS)
             return
         }
         val pkg = pkgs[index]
-        val label = try {
-            packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
-        } catch (e: PackageManager.NameNotFoundException) {
-            pkg
-        }
+        val label =
+            try {
+                packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+            } catch (e: PackageManager.NameNotFoundException) {
+                pkg
+            }
         Toast.makeText(this, getString(R.string.toast_starting, label, index + 1, pkgs.size), Toast.LENGTH_SHORT).show()
         val launch = packageManager.getLaunchIntentForPackage(pkg)
         if (launch == null) {
@@ -106,13 +115,15 @@ class LaunchService : Service() {
     private fun showOverlay() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val view = View(this)
-        val lp = WindowManager.LayoutParams(
-            1, 1,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            PixelFormat.TRANSLUCENT,
-        )
+        val lp =
+            WindowManager.LayoutParams(
+                1,
+                1,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                PixelFormat.TRANSLUCENT,
+            )
         try {
             wm.addView(view, lp)
             overlay = view
@@ -150,7 +161,8 @@ class LaunchService : Service() {
                 NotificationManager.IMPORTANCE_LOW,
             ),
         )
-        return Notification.Builder(this, CHANNEL_ID)
+        return Notification
+            .Builder(this, CHANNEL_ID)
             .setContentTitle(text)
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
@@ -167,7 +179,10 @@ class LaunchService : Service() {
         const val SOURCE_TEST = "test"
         private const val EXTRA_SOURCE = "source"
 
-        fun start(context: Context, source: String) {
+        fun start(
+            context: Context,
+            source: String,
+        ) {
             context.startForegroundService(
                 Intent(context, LaunchService::class.java).putExtra(EXTRA_SOURCE, source),
             )

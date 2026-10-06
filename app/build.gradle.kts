@@ -83,6 +83,4 @@ android {
     }
 }
 
-dependencies {
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-}
+// No dependencies: framework widgets only (RecyclerView removed, ~110 KB).

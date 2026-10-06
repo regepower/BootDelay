@@ -5,7 +5,9 @@ import android.content.SharedPreferences
 import android.os.SystemClock
 import android.provider.Settings
 
-class Prefs(context: Context) {
+class Prefs(
+    context: Context,
+) {
     /** Raw store, also used for config export/import. */
     val sp: SharedPreferences = context.getSharedPreferences("bootdelay", Context.MODE_PRIVATE)
 
@@ -18,7 +20,12 @@ class Prefs(context: Context) {
         set(v) = sp.edit().putInt(KEY_GAP, v).apply()
 
     var packages: List<String>
-        get() = sp.getString(KEY_PKGS, "").orEmpty().split('\n').filter { it.isNotBlank() }
+        get() =
+            sp
+                .getString(KEY_PKGS, "")
+                .orEmpty()
+                .split('\n')
+                .filter { it.isNotBlank() }
         set(v) = sp.edit().putString(KEY_PKGS, v.joinToString("\n")).apply()
 
     /** Boot (Settings.Global.BOOT_COUNT) for which the autostart already ran or was seen; -1 = unknown. */
@@ -41,8 +48,7 @@ class Prefs(context: Context) {
         /** Per-device boot bookkeeping: not part of an exported configuration. */
         val DEVICE_KEYS = setOf(KEY_BOOT, KEY_UPTIME)
 
-        fun currentBootCount(context: Context): Int =
-            Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT, -1)
+        fun currentBootCount(context: Context): Int = Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT, -1)
 
         private const val KEY_BOOT = "boot_count"
         private const val KEY_UPTIME = "boot_uptime"
