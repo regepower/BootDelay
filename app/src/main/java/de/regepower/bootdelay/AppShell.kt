@@ -109,7 +109,10 @@ object AppShell {
                 fun label() {
                     val open = bodyView.visibility == View.VISIBLE
                     head.text = a.getString(if (open) R.string.help_open else R.string.help_closed, title)
-                    head.stateDescription = a.getString(if (open) R.string.help_expanded else R.string.help_collapsed)
+                    // stateDescription needs API 30; on Android 10 TalkBack reads the ▾/▸ title only.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        head.stateDescription = a.getString(if (open) R.string.help_expanded else R.string.help_collapsed)
+                    }
                 }
                 label()
                 head.setOnClickListener {
