@@ -29,7 +29,7 @@
     <string name="cfg_invalid">Keine gültige BootDelay-Konfiguration</string>
     <string name="cfg_error">Datei konnte nicht geschrieben werden</string>
     <string name="donate_text">Diese App ist kleiner als ein Foto. Wer mag, kann die Entwicklung über <a href="https://liberapay.com/regepower/donate">Liberapay</a> oder <a href="https://github.com/sponsors/regepower">GitHub Sponsors</a> unterstützen.</string>
-    <string name="help_text"><b>Was macht die App?</b>\nNach jedem Neustart startet sie die ausgewählten Apps nacheinander und verzögert, damit das Handy erst zur Ruhe kommt.\n\n<b>Einrichtung</b>\n1. „Overlay“: „Über anderen Apps einblenden“ erlauben. Ohne das lässt Android keine App-Starts aus dem Hintergrund zu.\n2. „Akku“: Akku-Optimierung ausschalten.\n3. Apps in der unteren Liste antippen. In der oberen Liste halten und ziehen ändert die Reihenfolge.\n4. „Start“ = Wartezeit nach dem Boot, „Abstand“ = Pause zwischen den Apps.\n5. „Test“ startet den Ablauf sofort (ohne Start-Wartezeit).\n\n<b>Xiaomi / HyperOS</b>\nZusätzlich in den System-App-Einstellungen „Autostart“ für BootDelay erlauben.\n\n<b>Speichern / Laden</b>\nDie Symbole oben sichern App-Liste und Zeiten in eine Datei und stellen sie wieder her, z. B. auf einem neuen Handy.</string>
+    <string name="help_text"><b>Was macht die App?</b>\nNach jedem Neustart startet sie die ausgewählten Apps nacheinander und verzögert, damit das Handy erst zur Ruhe kommt.\n\n<b>Einrichtung</b>\n1. „Overlay“: „Über anderen Apps einblenden“ erlauben. Ohne das lässt Android keine App-Starts aus dem Hintergrund zu.\n2. „Akku“: Akku-Optimierung ausschalten.\n3. Apps in der unteren Liste antippen. In der oberen Liste halten und ziehen ändert die Reihenfolge.\n4. „Start“ = Wartezeit nach dem Boot, „Abstand“ = Pause zwischen den Apps.\n5. „Test“ startet den Ablauf sofort (ohne Start-Wartezeit).\n\n<b>Xiaomi / HyperOS</b>\nZusätzlich in den System-App-Einstellungen „Autostart“ für BootDelay erlauben.\n\n<b>Speichern / Laden</b>\nDie Symbole oben sichern App-Liste und Zeiten in eine Datei und stellen sie wieder her, z. B. auf einem neuen Handy.\n\n<b>Updates</b>\nEinmal am Tag prüft die App auf GitHub, ob es eine neue Version gibt, und bietet den Download an. Der Browser lädt sie, Antippen der Datei installiert sie; die Einstellungen bleiben erhalten. Abschalten unten: „Beim Start nach Updates suchen“.</string>
     <string name="cfg_overwrite">%1$s überschreiben?</string>
     <string name="cfg_overwrite_ok">Überschreiben</string>
     <string name="cfg_other_place">Anderer Ort</string>
@@ -37,4 +37,10 @@
     <string name="help_collapsed">zugeklappt</string>
     <string name="foss_text">Diese App ist freie Open-Source-Software (FOSS) unter der Lizenz GPL-3.0.\nQuellcode: %1$s</string>
     <string name="loading_apps">Apps werden geladen…</string>
+    <string name="update_auto">Beim Start nach Updates suchen</string>
+    <string name="update_title">Update verfügbar</string>
+    <string name="update_text">%1$s %2$s ist verfügbar (installiert: %3$s). Im Browser herunterladen und die Datei antippen, um sie zu installieren.</string>
+    <string name="update_install">Herunterladen</string>
+    <string name="update_later">Später</string>
+    <string name="update_skip">Diese Version überspringen</string>
 </resources>

@@ -31,7 +31,7 @@
     <string name="cfg_invalid">Not a valid BootDelay configuration</string>
     <string name="cfg_error">File could not be written</string>
     <string name="donate_text">This app is smaller than a photo. If you like, you can support its development via <a href="https://liberapay.com/regepower/donate">Liberapay</a> or <a href="https://github.com/sponsors/regepower">GitHub Sponsors</a>.</string>
-    <string name="help_text"><b>What does the app do?</b>\nAfter every boot it starts the selected apps one after another, with a delay, so the phone can settle first.\n\n<b>Setup</b>\n1. \"Overlay\": allow \"Display over other apps\". Without it Android does not let apps be started from the background.\n2. \"Battery\": turn off battery optimization.\n3. Tap apps in the lower list to select them. Hold and drag in the upper list to change the order.\n4. \"Start\" = wait time after boot, \"Gap\" = pause between apps.\n5. \"Test\" runs the sequence right away (without the start delay).\n\n<b>Xiaomi / HyperOS</b>\nAlso allow \"Autostart\" for BootDelay in the system app settings.\n\n<b>Save / load</b>\nThe icons at the top store the app list and times in a file and restore them, e.g. on a new phone.</string>
+    <string name="help_text"><b>What does the app do?</b>\nAfter every boot it starts the selected apps one after another, with a delay, so the phone can settle first.\n\n<b>Setup</b>\n1. \"Overlay\": allow \"Display over other apps\". Without it Android does not let apps be started from the background.\n2. \"Battery\": turn off battery optimization.\n3. Tap apps in the lower list to select them. Hold and drag in the upper list to change the order.\n4. \"Start\" = wait time after boot, \"Gap\" = pause between apps.\n5. \"Test\" runs the sequence right away (without the start delay).\n\n<b>Xiaomi / HyperOS</b>\nAlso allow \"Autostart\" for BootDelay in the system app settings.\n\n<b>Save / load</b>\nThe icons at the top store the app list and times in a file and restore them, e.g. on a new phone.\n\n<b>Updates</b>\nOnce a day the app checks GitHub for a newer version and offers the download. The browser downloads it, tapping the file installs it; settings are kept. Switch it off below: \"Check for updates on start\".</string>
     <string name="cfg_overwrite">Overwrite %1$s?</string>
     <string name="cfg_overwrite_ok">Overwrite</string>
     <string name="cfg_other_place">Other location</string>
@@ -42,4 +42,10 @@
     <string name="foss_text">This app is free and open-source software (FOSS) under the GPL-3.0 license.\nSource code: %1$s</string>
     <string name="source_url" translatable="false">https://github.com/regepower/BootDelay</string>
     <string name="loading_apps">Loading apps…</string>
+    <string name="update_auto">Check for updates on start</string>
+    <string name="update_title">Update available</string>
+    <string name="update_text">%1$s %2$s is available (installed: %3$s). Download it in the browser, then tap the file to install.</string>
+    <string name="update_install">Download</string>
+    <string name="update_later">Later</string>
+    <string name="update_skip">Skip this version</string>
 </resources>

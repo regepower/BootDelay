@@ -201,6 +201,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        UpdateCheck.onStart(this)
         showStatus(overlayBtn, getString(R.string.btn_overlay), Settings.canDrawOverlays(this))
         showStatus(
             batteryBtn,
